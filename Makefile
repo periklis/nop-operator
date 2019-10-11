@@ -21,6 +21,9 @@ build:
 test:
 	$(SDK) test local ./...
 
+publish:
+	docker push $(REGISTRY_REPOSITOTY)/nop-operator:$(OPERATOR_REV)
+
 cluster-create:
 	$(KIND) create cluster --name $(CLUSTER_NAME) --image kindest/node:$(CLUSTER_VERSION)
 
@@ -43,8 +46,11 @@ cluster-reset: cluster-delete cluster-create cluster-deploy
 operator-status:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) get pod -l name=nop-operator
 
+operator-logs:
+	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) logs $(OPERATOR_POD_NAME)
+
 operator-port-forward:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) port-forward pod/$(OPERATOR_POD_NAME) 8686:8686
 
-all: test build
+all: test build publish
 .PHONY: all build test
