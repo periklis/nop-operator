@@ -4,11 +4,7 @@ metadata:
   name: example-nopoperator
 spec:
   operators:
-  - name: "operator-a"
+  - name: "a-operator"
     version: "1.2.3"
-    url: "http://enter-a-url-here/to/operator-a/manifests"
-    replicas: 2
-  - name: "operator-b"
-    version: "3.2.1"
-    url: "http://enter-a-url-here/to/operator-b/manifests"
+    url: "https://raw.githubusercontent.com/periklis/nop-operator/master/data/a-operator-1.2.3.tar.gz"
     replicas: 1

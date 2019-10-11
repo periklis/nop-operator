@@ -2,6 +2,7 @@ package nopoperator
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -41,7 +42,10 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileNopOperator{client: mgr.GetClient(), scheme: mgr.GetScheme(), httpClient: http.DefaultClient}
+	tlsConf := &tls.Config{InsecureSkipVerify: true}
+	tr := &http.Transport{TLSClientConfig: tlsConf}
+	client := &http.Client{Transport: tr}
+	return &ReconcileNopOperator{client: mgr.GetClient(), scheme: mgr.GetScheme(), httpClient: client}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -57,63 +61,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	if err != nil {
 		return err
 	}
-
-	err = c.Watch(&source.Kind{Type: &v1beta1.Role{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &v1beta1.RoleBinding{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &v1beta1.ClusterRole{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &v1beta1.ClusterRoleBinding{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &v1.ServiceAccount{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &apiextensionsv1beta1.CustomResourceDefinition{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.NopOperator{},
-	})
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -185,7 +132,7 @@ func (r *ReconcileNopOperator) readChannel(oc operatorsv1alpha1.OperatorChannel)
 	}
 	defer os.RemoveAll(dir)
 
-	baseName := fmt.Sprintf("manifests-%s-%s", oc.Name, oc.Version)
+	baseName := fmt.Sprintf("%s-%s", oc.Name, oc.Version)
 	source := filepath.Join(dir, fmt.Sprintf("%s.tar.gz", baseName))
 	out, err := os.Create(source)
 	if err != nil {
