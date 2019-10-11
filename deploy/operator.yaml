@@ -16,7 +16,7 @@ spec:
       containers:
         - name: nop-operator
           # Replace this with the built image name
-          image: docker.io/theperiklis/no-operator:3f7b807
+          image: docker.io/theperiklis/nop-operator:3f7b807
           command:
           - nop-operator
           imagePullPolicy: Always
