@@ -104,7 +104,7 @@ func (r *ReconcileNopOperator) Reconcile(request reconcile.Request) (reconcile.R
 	pod := newPodForCR(instance)
 
 	for _, op := range instance.Spec.Operators {
-		log.Info("Processing operator (%s/%s) from channel: %s", op.Name, op.Version, op.URL)
+		log.Info("Processing operator from channel", "Operator.Name", op.Name, "Operator.Version", op.Version, "Operator.URL", op.URL)
 	}
 
 	// Set NopOperator instance as the owner and controller
