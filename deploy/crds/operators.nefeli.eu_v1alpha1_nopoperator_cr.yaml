@@ -1,0 +1,7 @@
+apiVersion: operators.nefeli.eu/v1alpha1
+kind: NopOperator
+metadata:
+  name: example-nopoperator
+spec:
+  # Add fields here
+  size: 3
