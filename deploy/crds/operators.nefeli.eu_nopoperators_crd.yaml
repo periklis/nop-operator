@@ -30,6 +30,33 @@ spec:
           type: object
         spec:
           description: NopOperatorSpec defines the desired state of NopOperator
+          properties:
+            operators:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              items:
+                description: 'EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+                  NOTE: json tags are required.  Any new fields you add must have
+                  json tags for the fields to be serialized.'
+                properties:
+                  name:
+                    type: string
+                  replicas:
+                    type: integer
+                  url:
+                    type: string
+                  version:
+                    type: string
+                required:
+                - name
+                - url
+                - version
+                type: object
+              type: array
+          required:
+          - operators
           type: object
         status:
           description: NopOperatorStatus defines the observed state of NopOperator

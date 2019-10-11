@@ -67,8 +67,26 @@ func schema_pkg_apis_operators_v1alpha1_NopOperatorSpec(ref common.ReferenceCall
 			SchemaProps: spec.SchemaProps{
 				Description: "NopOperatorSpec defines the desired state of NopOperator",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"operators": {
+						SchemaProps: spec.SchemaProps{
+							Description: "INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("./pkg/apis/operators/v1alpha1.OperatorChannel"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"operators"},
 			},
 		},
+		Dependencies: []string{
+			"./pkg/apis/operators/v1alpha1.OperatorChannel"},
 	}
 }
 
