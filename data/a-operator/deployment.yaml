@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: a-operator
+  template:
+    metadata:
+      labels:
+        name: a-operator
+    spec:
+      serviceAccountName: a-operator
+      containers:
+        - name: a-operator
+          # Replace this with the built image name
+          image: busybox
+          command:
+          - "sleep"
+          - "3600"
+          imagePullPolicy: Always
