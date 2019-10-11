@@ -38,6 +38,8 @@ cluster-deploy: cluster-status
 cluster-status:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) cluster-info
 
+cluster-reset: cluster-delete cluster-create cluster-deploy
+
 operator-status:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) get pod -l name=nop-operator
 
