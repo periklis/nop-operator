@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nop-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nop-operator
+  template:
+    metadata:
+      labels:
+        name: nop-operator
+    spec:
+      serviceAccountName: nop-operator
+      containers:
+        - name: nop-operator
+          # Replace this with the built image name
+          image: REPLACE_IMAGE
+          command:
+          - nop-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "nop-operator"
