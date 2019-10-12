@@ -16,7 +16,7 @@ spec:
       containers:
         - name: nop-operator
           # Replace this with the built image name
-          image: docker.io/theperiklis/nop-operator:884c6f8
+          image: REPLACE_IMAGE
           command:
           - nop-operator
           imagePullPolicy: Always

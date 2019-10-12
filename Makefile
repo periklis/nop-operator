@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 GOROOT=
 GO111MODULE=on
 
+GIT?=git
 KIND?=kind
 KUBECTL?=kubectl
 SDK?=operator-sdk
@@ -30,6 +31,9 @@ cluster-create:
 cluster-delete: cluster-status
 	$(KIND) delete cluster --name $(CLUSTER_NAME)
 
+cluster-prepare-manifests:
+	sed -i 's|REPLACE_IMAGE|docker.io/$(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)|g' deploy/operator.yaml
+
 cluster-deploy: cluster-status
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) apply -f deploy/service_account.yaml
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) apply -f deploy/role.yaml
@@ -41,7 +45,8 @@ cluster-deploy: cluster-status
 cluster-status:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) cluster-info
 
-cluster-reset: cluster-delete cluster-create cluster-deploy
+cluster-reset: cluster-delete cluster-create test build publish cluster-prepare-manifests cluster-deploy
+	$(GIT) checkout -- deploy/operator.yaml
 
 operator-status:
 	KUBECONFIG=$(KUBECONFIG_PATH) $(KUBECTL) get pod -l name=nop-operator
