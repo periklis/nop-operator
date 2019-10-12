@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 GOROOT=
 GO111MODULE=on
 
+GO?=go
 GIT?=git
 KIND?=kind
 KUBECTL?=kubectl
@@ -20,7 +21,7 @@ build:
 	$(SDK) build $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
 
 test:
-	$(SDK) test local ./...
+	$(GO) test ./...
 
 publish:
 	docker push $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
