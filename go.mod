@@ -7,10 +7,10 @@ require (
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.0.0 // indirect
 	github.com/operator-framework/operator-sdk v0.10.1-0.20191011023440-40b81381884a
+	github.com/prometheus/common v0.4.1
 	github.com/spf13/pflag v1.0.3
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
-	k8s.io/apiextensions-apiserver v0.0.0-20190918161926-8f644eb6e783
 	k8s.io/apimachinery v0.0.0-20190913080033-27d36303b655
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/kube-openapi v0.0.0-20190401085232-94e1e7b7574c

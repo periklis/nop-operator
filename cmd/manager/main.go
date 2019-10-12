@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"runtime"
 
@@ -99,6 +101,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	tlsConf := &tls.Config{InsecureSkipVerify: true}
+	tr := &http.Transport{TLSClientConfig: tlsConf}
+	client := &http.Client{Transport: tr}
+
 	log.Info("Registering Components.")
 
 	// Setup Scheme for all resources
@@ -108,7 +114,7 @@ func main() {
 	}
 
 	// Setup all Controllers
-	if err := controller.AddToManager(mgr); err != nil {
+	if err := controller.AddToManager(mgr, client); err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}
