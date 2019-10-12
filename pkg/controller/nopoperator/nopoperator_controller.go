@@ -185,6 +185,9 @@ func (r *ReconcileNopOperator) newObjectForCR(instance *operatorsv1alpha1.NopOpe
 		extra := map[string]string{
 			"app": name,
 		}
+		if labels == nil {
+			return extra
+		}
 
 		for k, v := range extra {
 			labels[k] = v
