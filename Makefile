@@ -22,7 +22,7 @@ test:
 	$(SDK) test local ./...
 
 publish:
-	docker push $(REGISTRY_REPOSITOTY)/nop-operator:$(OPERATOR_REV)
+	docker push $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
 
 cluster-create:
 	$(KIND) create cluster --name $(CLUSTER_NAME) --image kindest/node:$(CLUSTER_VERSION)
