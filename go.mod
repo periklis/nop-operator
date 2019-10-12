@@ -4,6 +4,7 @@ require (
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/go-logr/logr v0.1.0
 	github.com/go-openapi/spec v0.17.2
+	github.com/google/go-cmp v0.3.0
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.0.0 // indirect
 	github.com/operator-framework/operator-sdk v0.10.1-0.20191011023440-40b81381884a

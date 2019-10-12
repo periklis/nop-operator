@@ -69,7 +69,7 @@ func (sr *simpleReader) Read() ([]runtime.Object, bool, error) {
 		return nil, true, fmt.Errorf("Error unarchiving manifests: %s", err)
 	}
 
-	objs := []runtime.Object{}
+	var objs []runtime.Object
 	err = filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
