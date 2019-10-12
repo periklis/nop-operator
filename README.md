@@ -11,10 +11,13 @@ The reconciliation loop handles only the most basic resources that comprise a th
 - [operator-sdk](https://github.com/operator-framework/operator-sdk/commit/40b81381884a6c5536a8f97505b7ed680690fb81) >= 40b81381 (Due to go 1.13.x issues)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [kind](https://github.com/kubernetes-sigs/kind)
+- (Optional) [direnv](https://direnv.net/)
 
 ## How to run
 
-The project's `Makefile` captures the basic commands for a local cluster lifecycle based on `sigs.k8s.io/kind`.
+The `Makefile` captures the basic commands for a local cluster based on `sigs.k8s.io/kind`.
+
+*Hint:* To access the kind cluster via `kubectl` directly, remember to `export KUBECONFIG=$(kind get kubeconfig-path --name nop-operator-cluster)` or use direnv.
 
 ### Build
 
@@ -45,6 +48,10 @@ make cluster-reset
 ``` shell
 make operator-logs
 ```
+
+## Configuration for fork development
+
+To develop, test and publish docker images for this project the `Makefile` variable `REGISTRY_REPOSITORY` needs to be set to a repository the fork maintainer has push access rights to.
 
 ## Limitations
 
