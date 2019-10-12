@@ -154,7 +154,7 @@ func (r *ReconcileNopOperator) readChannel(oc operatorsv1alpha1.OperatorChannel)
 	var objs []*runtime.Object
 
 	err = filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
-		contents, err := ioutil.ReadFile(target)
+		contents, err := ioutil.ReadFile(path)
 		if err != nil {
 			return err
 		}
