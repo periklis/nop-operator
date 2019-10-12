@@ -33,13 +33,17 @@ func NewChannelReader(client *http.Client, log logr.Logger, channel v1alpha1.Ope
 func (sr *simpleReader) Read(objs []runtime.Object) (int, bool, error) {
 	oc := sr.channel
 
-	log.Info("Fetch Manifests for operator", "Operator.Name", oc.Name)
+	log.Info("Fetch Manifests for operator: ", "Name", oc.Name)
 
 	resp, err := sr.client.Get(oc.URL)
 	if err != nil {
 		return 0, false, fmt.Errorf("Error fetching manifests for %s/%s: %s", oc.Name, oc.Version, err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode > 299 {
+		return 0, false, fmt.Errorf("Error response status code %d", resp.StatusCode)
+	}
 
 	dir, err := ioutil.TempDir("", "example")
 	if err != nil {
