@@ -17,7 +17,7 @@ import (
 )
 
 type ChannelReader interface {
-	Read([]runtime.Object) (int, bool, error)
+	Read() ([]runtime.Object, bool, error)
 }
 
 type simpleReader struct {
@@ -30,24 +30,24 @@ func NewChannelReader(client *http.Client, log logr.Logger, channel v1alpha1.Ope
 	return &simpleReader{client: client, log: log, channel: channel}
 }
 
-func (sr *simpleReader) Read(objs []runtime.Object) (int, bool, error) {
+func (sr *simpleReader) Read() ([]runtime.Object, bool, error) {
 	oc := sr.channel
 
-	log.Info("Fetch Manifests for operator: ", "Name", oc.Name)
+	log.Info("Fetch Manifests for operator: ", "Name: ", oc.Name)
 
 	resp, err := sr.client.Get(oc.URL)
 	if err != nil {
-		return 0, false, fmt.Errorf("Error fetching manifests for %s/%s: %s", oc.Name, oc.Version, err)
+		return nil, false, fmt.Errorf("Error fetching manifests for %s/%s: %s", oc.Name, oc.Version, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode > 299 {
-		return 0, false, fmt.Errorf("Error response status code %d", resp.StatusCode)
+		return nil, false, fmt.Errorf("Error response status code %d", resp.StatusCode)
 	}
 
 	dir, err := ioutil.TempDir("", "example")
 	if err != nil {
-		return 0, true, fmt.Errorf("Error creating manifest tmp dir: %s", err)
+		return nil, true, fmt.Errorf("Error creating manifest tmp dir: %s", err)
 	}
 	defer os.RemoveAll(dir)
 
@@ -55,21 +55,21 @@ func (sr *simpleReader) Read(objs []runtime.Object) (int, bool, error) {
 	source := filepath.Join(dir, fmt.Sprintf("%s.tar.gz", baseName))
 	out, err := os.Create(source)
 	if err != nil {
-		return 0, true, fmt.Errorf("Error creating manifest tmp file: %s", err)
+		return nil, true, fmt.Errorf("Error creating manifest tmp file: %s", err)
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return 0, true, fmt.Errorf("Error copy manifest contents into tmp file: %s", err)
+		return nil, true, fmt.Errorf("Error copy manifest contents into tmp file: %s", err)
 	}
 
 	target := filepath.Join(dir, baseName)
 	if err := archiver.Unarchive(source, target); err != nil {
-		return 0, true, fmt.Errorf("Error unarchiving manifests: %s", err)
+		return nil, true, fmt.Errorf("Error unarchiving manifests: %s", err)
 	}
 
-	i := 0
+	objs := []runtime.Object{}
 	err = filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
@@ -85,14 +85,13 @@ func (sr *simpleReader) Read(objs []runtime.Object) (int, bool, error) {
 			return err
 		}
 		objs = append(objs, obj)
-		i++
 
 		return nil
 	})
 
 	if err != nil {
-		return 0, false, fmt.Errorf("Error walking though manifests: %s", err)
+		return nil, false, fmt.Errorf("Error walking though manifests: %s", err)
 	}
 
-	return i, false, nil
+	return objs, false, nil
 }

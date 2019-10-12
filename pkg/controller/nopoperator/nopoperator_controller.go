@@ -7,6 +7,9 @@ import (
 
 	operatorsv1alpha1 "github.com/periklis/nop-operator/pkg/apis/operators/v1alpha1"
 	"github.com/periklis/nop-operator/pkg/channels"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -89,15 +92,14 @@ func (r *ReconcileNopOperator) Reconcile(request reconcile.Request) (reconcile.R
 
 	for _, op := range instance.Spec.Operators {
 		log.Info("Processing operator from channel", "Operator.Name", op.Name, "Operator.Version", op.Version, "Operator.URL", op.URL)
-
 		reader := channels.NewChannelReader(r.httpClient, log, op)
 
-		var objs []runtime.Object
-		_, shouldRequeue, err := reader.Read(objs)
+		objs, shouldRequeue, err := reader.Read()
 		if err != nil {
 			return reconcile.Result{Requeue: shouldRequeue}, err
 		}
 
+		log.Info("Received objects ", "Count: ", len(objs))
 		for _, obj := range objs {
 			err := r.newObjectForCR(ctx, instance, op.Name, obj)
 			if err != nil {
@@ -115,18 +117,60 @@ func (r *ReconcileNopOperator) newObjectForCR(ctx context.Context, instance *ope
 		return fmt.Errorf("Error setting controller reference: %s", err)
 	}
 
-	var found runtime.Object
 	key := types.NamespacedName{Name: mo.GetName(), Namespace: mo.GetNamespace()}
 
-	err := r.client.Get(ctx, key, found)
-	if errors.IsNotFound(err) {
-		log.Info("Creating a new Object", "Namespace", mo.GetNamespace(), "Name", mo.GetName())
-		err = r.client.Create(ctx, obj)
-		if err != nil {
-			return fmt.Errorf("Error creating new Role: %s", err)
+	switch o := mo.(type) {
+	case *corev1.ServiceAccount:
+		found := &corev1.ServiceAccount{}
+		err := r.client.Get(ctx, key, found)
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new ServiceAccount", "Namespace", mo.GetNamespace(), "Name", mo.GetName())
+			err = r.client.Create(ctx, o)
+			if err != nil {
+				return fmt.Errorf("Error creating new ServiceAccount: %s", err)
+			}
+		} else if err != nil {
+			return err
 		}
-	} else if err != nil {
-		return err
+
+	case *rbacv1.Role:
+		found := &rbacv1.Role{}
+		err := r.client.Get(ctx, key, found)
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Role", "Namespace", mo.GetNamespace(), "Name", mo.GetName())
+			err = r.client.Create(ctx, o)
+			if err != nil {
+				return fmt.Errorf("Error creating new Role: %s", err)
+			}
+		} else if err != nil {
+			return err
+		}
+
+	case *rbacv1.RoleBinding:
+		found := &rbacv1.RoleBinding{}
+		err := r.client.Get(ctx, key, found)
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new RoleBinding", "Namespace", mo.GetNamespace(), "Name", mo.GetName())
+			err = r.client.Create(ctx, o)
+			if err != nil {
+				return fmt.Errorf("Error creating new RoleBinding: %s", err)
+			}
+		} else if err != nil {
+			return err
+		}
+
+	case *appsv1.Deployment:
+		found := &appsv1.Deployment{}
+		err := r.client.Get(ctx, key, found)
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Deployment", "Namespace", mo.GetNamespace(), "Name", mo.GetName())
+			err = r.client.Create(ctx, o)
+			if err != nil {
+				return fmt.Errorf("Error creating new Deployment: %s", err)
+			}
+		} else if err != nil {
+			return err
+		}
 	}
 
 	return nil
