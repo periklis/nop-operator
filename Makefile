@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 GOROOT=
 GO111MODULE=on
 
+DOCKER?=docker
 GO?=go
 GIT?=git
 KIND?=kind
@@ -23,8 +24,11 @@ build:
 test:
 	$(GO) test ./...
 
+pull:
+	$(DOCKER) pull $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
+
 publish:
-	docker push $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
+	$(DOCKER) push $(REGISTRY_REPOSITORY)/nop-operator:$(OPERATOR_REV)
 
 cluster-create:
 	$(KIND) create cluster --name $(CLUSTER_NAME) --image kindest/node:$(CLUSTER_VERSION)

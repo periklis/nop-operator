@@ -45,7 +45,7 @@ make cluster-delete
 
 ### Reset the local cluster
 
-Resetting the cluster means a complete cluster delete, create and re-deploy of the operator.
+Resetting the cluster means a complete operator re-build, re-publish, cluster delete, create and re-deploy of the operator. For publishing checkout the configuration hint below.
 
 ``` shell
 make cluster-reset
